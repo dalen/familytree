@@ -116,7 +116,9 @@ public class FamilyTreeViewer{
 			Person root = familyTree.getPerson(name);
 			StringBuilder info = new StringBuilder();
 			info.append("Name: " + root.getName() + "\n");
-			info.append("Sex: " + (root.getSex().name().toLowerCase()) + "\n");
+			if (root.getSex() != null) {
+				info.append("Sex: " + (root.getSex().name().toLowerCase()) + "\n");
+			}
 			info.append("Birthdate: " + root.getBirthdate() +"\n");
 			info.append("Deathdate: " + root.getDeathdate() + "\n");
 			JOptionPane.showMessageDialog(viewer, info);

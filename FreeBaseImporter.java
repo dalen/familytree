@@ -51,7 +51,7 @@ public class FreeBaseImporter {
 	
 	public Person readPerson(String id) {
 		try {
-			URL url = new URL("http://www.freebase.com/api/service/mqlread?q={%20%22query%22%20:%20[%20{%20%22children%22%20:%20[%20{}%20],%20%22gender%22%20:%20null,%20%22id%22%20:%20%22" + id + "%22,%20%22name%22%20:%20null,%20%22parents%22%20:%20[%20{}%20],%20%22type%22%20:%20%22/people/person%22%20}%20]%20}");
+			URL url = new URL("http://www.freebase.com/api/service/mqlread?q={%20%22query%22%20:%20[%20{%20%22children%22%20:%20[%20{}%20],%20%22gender%22%20:%20null,%20%22date_of_birth%22%20:%20null,%20%22id%22%20:%20%22" + id + "%22,%20%22name%22%20:%20null,%20%22parents%22%20:%20[%20{}%20],%20%22type%22%20:%20%22/people/person%22%20}%20]%20}");
     		scan = new Scanner(url.openStream());
 		}
 		catch (java.io.IOException e) {
@@ -60,6 +60,7 @@ public class FreeBaseImporter {
 		}
 		String name = null;
 		Person.Sex sex = null;
+		Date birthdate = new Date();
 		
 		while(scan.hasNextLine()){
 			String line = scan.nextLine();
@@ -68,6 +69,7 @@ public class FreeBaseImporter {
 			Matcher pm = freebasePatterns.get("parents").matcher(line);
 			Matcher mm = freebasePatterns.get("male").matcher(line);
 			Matcher fm = freebasePatterns.get("female").matcher(line);
+			Matcher bm = freebasePatterns.get("birthdate").matcher(line);
 			if (mm.matches()) {
 				sex = Person.Sex.MALE;
 			}
@@ -76,6 +78,34 @@ public class FreeBaseImporter {
 			}
 			if (nm.matches()) {
 				name = nm.group(1);
+			}
+			if (bm.matches()) {
+				System.out.println(line);
+				System.out.println(bm.group(1));
+				String [] dtokens = bm.group(1).split("-");
+				int year = 0, month = 0, day = 0;
+				if (dtokens.length >= 1) {
+					try {
+						year = Integer.parseInt(dtokens[0]);
+					} catch (NumberFormatException e) {
+						year = 0;
+					}
+				}
+				if (dtokens.length >= 2) {
+					try {
+						month = Integer.parseInt(dtokens[1]);
+					} catch (NumberFormatException e) {
+						month = 0;
+					}
+				}
+				if (dtokens.length >= 3) {
+					try {
+						day = Integer.parseInt(dtokens[2]);
+					} catch (NumberFormatException e) {
+						day = 0;
+					}
+				}
+				birthdate = new Date(year, month, day);
 			}
 			
 			if (cm.matches()){
@@ -92,8 +122,8 @@ public class FreeBaseImporter {
 					}
 					Matcher im = freebasePatterns.get("id").matcher(line);
 					if (im.matches()){
-						System.out.println("Child");
-						System.out.println(im.group(1));
+						//System.out.println("Child");
+						//System.out.println(im.group(1));
 						personQueue.add(im.group(1));
 						// Add the relation
 						String [] rel = new String [2];
@@ -115,11 +145,11 @@ public class FreeBaseImporter {
 						if (nest<0)
 							break;
 					}
-					System.out.println("Parent debug");
+					//System.out.println("Parent debug");
 					Matcher im = freebasePatterns.get("id").matcher(line);
 					if (im.matches()){
-						System.out.println("Parent");
-						System.out.println(im.group(1));
+						//System.out.println("Parent");
+						//System.out.println(im.group(1));
 						personQueue.add(im.group(1));
 						// Add the relation
 						String [] rel = new String [2];
@@ -132,7 +162,7 @@ public class FreeBaseImporter {
 		}
 		System.out.println(name);
 		System.out.println("--------------------");
-		return new Person(family.size(), name, sex, new Date(), new Date());
+		return new Person(family.size(), name, sex, birthdate, new Date());
 	}
 	
 	public void createFreebasePatterns() {
@@ -142,6 +172,7 @@ public class FreeBaseImporter {
 		freebasePatterns.put("female", Pattern.compile("\\s*\"gender\"\\s*:\\s*\"Female\",?\\s*"));
 		freebasePatterns.put("children", Pattern.compile("\\s*\"children\"\\s*:\\s*\\[\\s*"));
 		freebasePatterns.put("parents", Pattern.compile("\\s*\"parents\"\\s*:\\s*\\[\\s*"));
+		freebasePatterns.put("birthdate", Pattern.compile("\\s*\"date_of_birth\"\\s*:\\s*\"(.*)\",?\\s*"));
 		freebasePatterns.put("beginlist", Pattern.compile(".*\\[.*"));
 		freebasePatterns.put("endlist", Pattern.compile(".*\\].*"));
 		freebasePatterns.put("enditem", Pattern.compile(".*},?.*"));
