@@ -1,8 +1,12 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import java.awt.Container;
+import java.awt.Event;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.ArrayList;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -11,6 +15,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -56,11 +61,29 @@ public class FamilyTreeViewer{
 		JMenu filemenu = new JMenu("File");
 		menu.add(filemenu);
 		JMenuItem open = new JMenuItem("Open file");
+	    open.setMnemonic(KeyEvent.VK_O);
+	    open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
 		open.addActionListener(new OpenActionListener());
 		filemenu.add(open);
 		JMenuItem freebase = new JMenuItem("Freebase import");
+	    freebase.setMnemonic(KeyEvent.VK_I);
+	    freebase.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK));
 		freebase.addActionListener(new FreebaseActionListener());
 		filemenu.add(freebase);
+		JMenuItem graphvizExport = new JMenuItem("Graphviz export");
+	    graphvizExport.setMnemonic(KeyEvent.VK_E);
+	    graphvizExport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK));
+		graphvizExport.addActionListener(new GraphvizExportActionListener());
+		filemenu.add(graphvizExport);
+	    // do some fancy stuff with the Quit item
+	    JMenuItem quitItem = new JMenuItem("Quit");
+	    quitItem.setMnemonic(KeyEvent.VK_Q);
+	    quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK));
+	    quitItem.addActionListener(new ActionListener() {
+	      public void actionPerformed(ActionEvent e) { System.exit(0); }
+	    });
+	    filemenu.add(quitItem);
+
 	}
 	// Ritar ut närmaste familjen
 	// TODO Lägg till pilar
@@ -135,7 +158,6 @@ public class FamilyTreeViewer{
 	}
 	// Öppnar fil
 	public class OpenActionListener implements ActionListener {
-
 		public void actionPerformed(ActionEvent e){
 			JFileChooser chooser = new JFileChooser();
 			FileFilter filter = new FileNameExtensionFilter("Gedcom files", "ged");
@@ -153,9 +175,9 @@ public class FamilyTreeViewer{
 			}
 		}
 	}
-	// Öppnar fil
+	
+	// Import from freebase
 	public class FreebaseActionListener implements ActionListener {
-
 		public void actionPerformed(ActionEvent e){
 			
 			familyTree = new FreeBaseImporter().importFreebase("/guid/9202a8c04000641f80000000051f7983");
@@ -164,6 +186,26 @@ public class FamilyTreeViewer{
 			} else {
 				JOptionPane.showMessageDialog(viewer, "No family members found.",
 	                       "No family members found", JOptionPane.WARNING_MESSAGE);
+			}
+		}
+	}
+	
+	// Export to graphviz file
+	public class GraphvizExportActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e){
+			JFileChooser chooser = new JFileChooser();
+			FileFilter filter = new FileNameExtensionFilter("Graphviz files", "dot");
+			chooser.setFileFilter(filter);
+			int status = chooser.showSaveDialog(viewer);
+			if(status == JFileChooser.APPROVE_OPTION){
+				file = chooser.getSelectedFile();
+				try {
+					GraphvizExporter.export(familyTree, file);
+				}
+				catch (IOException ie) {
+					JOptionPane.showMessageDialog(viewer, "IO Exception",
+		                       e.toString(), JOptionPane.WARNING_MESSAGE);
+				}
 			}
 		}
 	}
