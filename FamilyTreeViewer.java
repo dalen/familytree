@@ -92,23 +92,23 @@ public class FamilyTreeViewer{
 		tree.removeAll();
 		Person root = familyTree.getFamily().get(refnr);
 		if(root.hasMother()){
-			JButton mother = new JButton(root.getMother().getName());
+			JButton mother = new JButton(root.getMother().getSexName());
 			tree.add(mother);
 			mother.setBounds(MOTHER_POS, PARENT_ROW, NODE_WIDTH, NODE_HEIGHT);
 			mother.addActionListener(new ButtonListener());
 		}
 		if(root.hasFather()){
-			JButton father = new JButton(root.getFather().getName());
+			JButton father = new JButton(root.getFather().getSexName());
 			tree.add(father);
 			father.setBounds(FATHER_POS, PARENT_ROW, NODE_WIDTH, NODE_HEIGHT);
 			father.addActionListener(new ButtonListener());
 		}
-		JButton me = new JButton(root.getName());
+		JButton me = new JButton(root.getSexName());
 		tree.add(me);
 		me.setBounds(SELF_POS, SELF_ROW, NODE_WIDTH, NODE_HEIGHT);
 		me.addActionListener(new MainButtonListener());
 		if(root.hasSpouse()){
-			JButton spouse = new JButton(root.getSpouse().getName());
+			JButton spouse = new JButton(root.getSpouse().getSexName());
 			tree.add(spouse);
 			spouse.setBounds(SPOUSE_POS, SELF_ROW, NODE_WIDTH, NODE_HEIGHT);
 			spouse.addActionListener(new ButtonListener());
@@ -121,7 +121,7 @@ public class FamilyTreeViewer{
 				pos = NODE_MARGIN;
 			}
 			for(Person c : children){
-				JButton child = new JButton(c.getName());
+				JButton child = new JButton(c.getSexName());
 				tree.add(child);
 				child.setBounds(pos, CHILD_ROW, NODE_WIDTH, NODE_HEIGHT);
 				pos += NODE_WIDTH + NODE_MARGIN;

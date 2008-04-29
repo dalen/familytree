@@ -40,10 +40,20 @@ public class FreeBaseImporter {
 			c = family.get(ref.get(rel[1]));
 			
 			if (p.getSex() == Person.Sex.MALE) {
+				if ((c.getFather() != null) && (c.getFather().getSex() == null)) {
+					c.setMother(c.getFather());
+				}
 				c.setFather(p);
-			} else {
+			} else if (p.getSex() == Person.Sex.FEMALE){
+				if ((c.getMother() != null) && (c.getMother().getSex() == null)) {
+					c.setFather(c.getMother());
+				}
 				c.setMother(p);
-			}
+			} else if (c.getMother() == null) {
+				c.setMother(p);
+			} else if (c.getFather() == null) {
+				c.setFather(p);
+			} // Don't do anything if person has three parents :) 
 			p.setChildren(c);
 		}
 		return new FamilyListGraph(family.size(), family);
