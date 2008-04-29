@@ -1,4 +1,5 @@
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -57,6 +58,25 @@ public class FreeBaseImporter {
 			p.setChildren(c);
 		}
 		return new FamilyListGraph(family.size(), family);
+	}
+	
+	public String getId(String name) {
+		try {
+			URL url = new URL("http://www.freebase.com/api/service/mqlread?q={%20%22query%22%20:%20{%20%22id%22%20:%20null,%20%22limit%22%20:%201,%20%22name%22%20:%20%22" + URLEncoder.encode(name, "UTF-8") + "%22,%20%22type%22%20:%20%22/people/person%22%20}%20}");
+    		scan = new Scanner(url.openStream());
+		}
+		catch (java.io.IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		while(scan.hasNextLine()){
+			String line = scan.nextLine();
+			Matcher im = freebasePatterns.get("id").matcher(line);
+			if (im.matches()) {
+				return im.group(1);
+			}
+		}
+		return null;
 	}
 	
 	public Person readPerson(String id) {

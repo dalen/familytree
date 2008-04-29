@@ -179,13 +179,26 @@ public class FamilyTreeViewer{
 	// Import from freebase
 	public class FreebaseActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e){
-			
-			familyTree = new FreeBaseImporter().importFreebase("/guid/9202a8c04000641f80000000051f7983");
-			if (familyTree.getNumMembers() > 0) {
-				drawFamily(0);
+			String id;
+		    String name = JOptionPane.showInputDialog(viewer,
+				 "Who do you want to import?",
+				 "Enter name",
+				 JOptionPane.QUESTION_MESSAGE);
+		    if (name == null) {
+		    	return;
+		    }
+			FreeBaseImporter importer = new FreeBaseImporter();
+			if ((id = importer.getId(name)) != null) {
+    			familyTree = importer.importFreebase(id);
+    			if (familyTree.getNumMembers() > 0) {
+    				drawFamily(0);
+    			} else {
+    				JOptionPane.showMessageDialog(viewer, "No family members found.",
+    	                       "No family members found", JOptionPane.WARNING_MESSAGE);
+    			}
 			} else {
-				JOptionPane.showMessageDialog(viewer, "No family members found.",
-	                       "No family members found", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(viewer, "No such person found.",
+	                       "No such person found", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 	}
