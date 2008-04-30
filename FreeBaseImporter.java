@@ -110,8 +110,6 @@ public class FreeBaseImporter {
 				name = nm.group(1);
 			}
 			if (bm.matches()) {
-				System.out.println(line);
-				System.out.println(bm.group(1));
 				String [] dtokens = bm.group(1).split("-");
 				int year = 0, month = 0, day = 0;
 				if (dtokens.length >= 1) {
@@ -152,8 +150,6 @@ public class FreeBaseImporter {
 					}
 					Matcher im = freebasePatterns.get("id").matcher(line);
 					if (im.matches()){
-						//System.out.println("Child");
-						//System.out.println(im.group(1));
 						personQueue.add(im.group(1));
 						// Add the relation
 						String [] rel = new String [2];
@@ -175,11 +171,8 @@ public class FreeBaseImporter {
 						if (nest<0)
 							break;
 					}
-					//System.out.println("Parent debug");
 					Matcher im = freebasePatterns.get("id").matcher(line);
 					if (im.matches()){
-						//System.out.println("Parent");
-						//System.out.println(im.group(1));
 						personQueue.add(im.group(1));
 						// Add the relation
 						String [] rel = new String [2];
@@ -190,8 +183,6 @@ public class FreeBaseImporter {
 				}
 			}
 		}
-		System.out.println(name);
-		System.out.println("--------------------");
 		return new Person(family.size(), name, sex, birthdate, new Date());
 	}
 	
